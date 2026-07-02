@@ -38,7 +38,7 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default('7d'),
 
   //Security
-  BCRYPT_ROUNDS: z.coerce.number().min(10).max(20).default(12),
+  BCRYPT_SALT_ROUNDS: z.coerce.number().min(10).max(20).default(12),
 
   // CORS configuration
   CORS_ORIGIN: z
