@@ -1,6 +1,5 @@
 import cors from 'cors'
 import express, { type Request, type Response } from 'express'
-import helmet from 'helmet'
 import morgan from 'morgan'
 import { env, isTest } from '../env.ts'
 import { errorHandler, notFound } from './middleware/errorHandler.ts'
@@ -12,7 +11,7 @@ import userRoutes from './routes/userRoutes.ts'
 const app = express()
 
 //Regular middleware
-app.use(helmet.caller())
+// app.use(helmet())
 app.use(
   cors({
     origin: env.CORS_ORIGIN,
