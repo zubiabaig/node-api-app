@@ -2,8 +2,8 @@ import cors from 'cors'
 import express, { type Request, type Response } from 'express'
 import helmet from 'helmet'
 import morgan from 'morgan'
-import path from 'path'
 import { env, isTest } from '../env.ts'
+import { errorHandler, notFound } from './middleware/errorHandler.ts'
 import authRoutes from './routes/authRoutes.ts'
 import habitRoutes from './routes/habitRoutes.ts'
 import tagRoutes from './routes/tagRoutes.ts'
@@ -11,6 +11,7 @@ import userRoutes from './routes/userRoutes.ts'
 //Create Express application
 const app = express()
 
+//Regular middleware
 app.use(helmet())
 app.use(
   cors({
@@ -63,25 +64,17 @@ app.get('/health', (req: Request, res: Response) => {
 //   }
 // })
 
-// Mount routers with base paths
+// API Routes
 app.use('/api/auth', authRoutes) // All auth routes prefixed with /api/auth
 app.use('/api/users', userRoutes) // All user routes prefixed with /api/users
 app.use('/api/habits', habitRoutes) // All habit routes prefixed with /api/habits
 app.use('/api/tags', tagRoutes) // All tag routes prefixed with /api/tags
 
-// 404 handler for API routes
-app.use('/api', (req, res) => {
-  res.status(404).json({
-    error: 'Not Found',
-    message: `Cannot ${req.method} ${req.originalUrl}`,
-    timestamp: new Date().toISOString(),
-  })
-})
+// 404 handler - MUST come after all valid routes
+app.use(notFound)
 
-// Catch-all for non-API routes (SPA support)
-app.get('/{*splat}', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'))
-})
+//Global error handler - MUST be last
+app.use(errorHandler)
 
 // Export the app for use in other modules (like tests)
 export { app }

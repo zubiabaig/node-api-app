@@ -1,5 +1,5 @@
 import z from 'zod'
-import { validateBody } from '../middleware/validation.ts'
+import { validateBody } from '../src/middleware/validation.ts'
 
 const schema = z.object({
   name: z.string().min(1),

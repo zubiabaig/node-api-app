@@ -1,21 +1,24 @@
 import { Router } from 'express'
 import {
   addTagsToHabit,
+  completeHabit,
   createHabit,
   deleteHabit,
   getHabitById,
   getHabitsByTag,
   getUserHabits,
+  logHabitCompletion,
   updateHabit,
 } from '../controllers/habitController.ts'
 import { authenticateToken } from '../middleware/auth.ts'
 import { validateBody, validateParams } from '../middleware/validation.ts'
 import {
+  addTagsSchema,
   createHabitSchema,
   getHabitByTagSchema,
   habitCompleteSchema,
-  habitTagIdsSchema,
-  uuidSchema,
+  habitIdSchema,
+  habitTagSchema,
 } from '../types/habitTypes.ts'
 
 const router = Router()
@@ -29,30 +32,43 @@ router.use(authenticateToken)
 
 router.get('/', getUserHabits)
 
-router.get('/:id', validateParams(uuidSchema), getHabitById)
+router.get('/:id', validateParams(habitIdSchema), getHabitById)
 
 router.post('/', validateBody(createHabitSchema), createHabit)
 
-router.put('/:id', validateParams(uuidSchema), updateHabit)
+router.put('/:id', validateParams(habitIdSchema), updateHabit)
 
-router.delete('/:id', validateParams(uuidSchema), deleteHabit)
+router.delete('/:id', validateParams(habitIdSchema), deleteHabit)
 
 //Habit completion routes
 router.post(
   '/:id/complete',
-  validateParams(uuidSchema),
+  validateParams(habitIdSchema),
   validateBody(habitCompleteSchema),
-  // completeHabit,
+  completeHabit,
 )
 
 // Tag relationship routes
 router.get('/tag/:tagId', validateParams(getHabitByTagSchema), getHabitsByTag)
 
+router.post(
+  '/:id/log',
+  validateParams(habitIdSchema),
+  validateBody(habitCompleteSchema),
+  logHabitCompletion,
+)
+
 router.get(
   '/:id/tags',
-  validateParams(uuidSchema),
-  validateBody(habitTagIdsSchema),
+  validateParams(habitIdSchema),
+  validateBody(addTagsSchema),
   addTagsToHabit,
+)
+
+router.delete(
+  '/:id/tags/:tagId',
+  validateParams(habitTagSchema),
+  // removeTagFromHabit
 )
 
 export default router

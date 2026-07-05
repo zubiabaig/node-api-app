@@ -285,3 +285,86 @@ export const getHabitsByTag = async (
     res.status(500).json({ error: 'Failed to fetch habits by tagId' })
   }
 }
+
+export const logHabitCompletion = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  try {
+    const { id } = req.params
+    const { note } = req.body
+    const userId = req.user!.id
+
+    //Verify habit belongs to user
+    const [habit] = await db
+      .select()
+      .from(habits)
+      .where(eq(habits.userId, userId))
+
+    if (!habit) {
+      return res.status(404).json({ error: 'Habit not found' })
+    }
+
+    const [newLog] = await db
+      .insert(entries)
+      .values({
+        habitId: id,
+        completionData: new Date(),
+        note,
+      })
+      .returning()
+
+    res.status(201).json({
+      message: 'Habit completion logged',
+      log: newLog,
+    })
+  } catch (error) {
+    console.error('Log habit completion error:', error)
+    res.status(500).json({ error: 'Failed to log habit completion' })
+  }
+}
+
+export const completeHabit = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  try {
+    const { id } = req.params
+    const { note } = req.body
+    const userId = req.user!.id
+
+    //Verify habit belongs to user
+    const [habit] = await db
+      .select()
+      .from(habits)
+      .where(eq(habits.userId, userId))
+
+    if (!habit) {
+      return res.status(404).json({ error: 'Habit not found' })
+    }
+
+    if (!habit.isActive) {
+      return res
+        .status(400)
+        .json({ error: 'Cannot complete an inactive habit' })
+    }
+
+    //Create new completion entry
+    const [newEntry] = await db
+      .insert(entries)
+      .values({
+        habitId: id,
+        completionData: new Date(),
+        note,
+      })
+      .returning()
+
+    res.status(201).json({
+      message: 'Habit complete successfully',
+      entry: newEntry,
+    })
+  } catch (error) {
+    console.error('Complete habit error:', error)
+    res.status(500).json({ error: 'Failed to complete habit' })
+  }
+}

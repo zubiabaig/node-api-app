@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { app } from '../server.ts'
+import { app } from '../src/server.ts'
 
 describe('Health Check', () => {
   it('should rturn OK status', async () => {
