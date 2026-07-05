@@ -12,7 +12,7 @@ import userRoutes from './routes/userRoutes.ts'
 const app = express()
 
 //Regular middleware
-app.use(helmet())
+app.use(helmet.caller())
 app.use(
   cors({
     origin: env.CORS_ORIGIN,
